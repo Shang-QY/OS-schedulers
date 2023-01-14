@@ -26,7 +26,7 @@ class CPUCore:
         globals.cpu_core_mutex.release()
         return state
 
-    def process_task(self, task, resources, cpu_cores, time_quantum=None, queue=None, state='ready'):
+    def process_task(self, task, resources, cpu_cores, time_quantum=None, time_slice=None, queue=None, state='ready', origin_queue=None, origin_state='queue 0'):
 
         task.set_state('running')
         task.allocate_resources(resources)
@@ -46,10 +46,11 @@ class CPUCore:
 
         else:
             remain_time = task.duration - task.cpu_time
-            for _ in range(min(remain_time, time_quantum)):
+            for _ in range(min(remain_time, time_slice)):
                 time.sleep(1)
                 # print_system_status(cpu_cores, resources)
                 task.increment_cpu_time()
+                task.queue_time += 1
                 self.idle_time += 1
                 globals.increment_system_total_time()
 
@@ -58,10 +59,17 @@ class CPUCore:
                 task.set_state('done')
 
             else:
-                task.set_state(state)
-                task.set_isAssigned(False)
-                with globals.task_mutex:
-                    queue.append(task)
+                if task.queue_time == time_quantum:
+                    task.queue_time = 0
+                    task.set_state(state)
+                    task.set_isAssigned(False)
+                    with globals.task_mutex:
+                        queue.append(task)
+                else:
+                    task.set_state(origin_state)
+                    task.set_isAssigned(False)
+                    with globals.task_mutex:
+                        origin_queue.append(task)
 
         print()
         globals.task_mutex.acquire(blocking=False)

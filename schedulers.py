@@ -172,16 +172,7 @@ def RoundRobin(tasks_count, time_quantum):
     exit(0)
 
 
-# Multilevel Feedback Queue,
-# this algorithm contains several queues
-# with different time-quantums. the priority
-# of each queue is different from another one.
-# if given time-quantum to the task is insufficient
-# then it will be pushed to next level queue that
-# has lower prior but a greater time-quantum. to
-# prioritize each queue, I used a simple "counter"
-# variable that each time is used to compute "%"
-def multilevel_feedback_queue(tasks_count, queues_number, queues_time_quantum):
+def multilevel_feedback_queue(tasks_count, queues_number, queues_time_quantum, queue_time_slice):
     queues = []
     for i in range(queues_number):
         queues.append([])
@@ -196,10 +187,10 @@ def multilevel_feedback_queue(tasks_count, queues_number, queues_time_quantum):
             task, queue_index = globals.waiting[0]
             isDone = False
         else:
-            for i in range(queues_number, 0, -1):
-                if counter % (queues_number * i) == 0 and len(queues[i-1]) > 0:
-                    task = queues[i-1][0]
-                    queue_index = i-1
+            for i in range(queues_number):
+                if len(queues[i]) > 0:
+                    task = queues[i][0]
+                    queue_index = i
                     isDone = False
                     break
         counter += 1
@@ -212,9 +203,10 @@ def multilevel_feedback_queue(tasks_count, queues_number, queues_time_quantum):
                             core.set_running_task(task)
 
                             next_level_queue_indx = min(queue_index+1, queues_number-1)
+                            current_state = 'queue ' + str(queue_index)
                             next_state = 'queue ' + str(next_level_queue_indx)
                             th = Thread(target=core.process_task, args=(task, globals.resources, globals.cpu_cores, \
-                                queues_time_quantum[queue_index], queues[next_level_queue_indx], next_state))
+                                queues_time_quantum[queue_index], queue_time_slice[queue_index],queues[next_level_queue_indx], next_state, queues[queue_index], current_state))
                             task.set_isAssigned(True)
 
                             isWaiting = True

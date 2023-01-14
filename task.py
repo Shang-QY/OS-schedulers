@@ -7,6 +7,7 @@ class Task:
         self.duration = duration
         self.set_state('ready')
         self.cpu_time = 0
+        self.queue_time = 0
         self.set_isAssigned(isAssigned=False)
         self.set_priority()
 

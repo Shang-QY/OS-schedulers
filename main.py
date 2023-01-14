@@ -12,17 +12,18 @@ from schedulers import FCFS, SJF, RoundRobin, \
 
 
 if __name__ == '__main__':
-    message = colored('Which algorithm are you going to run?\n\n', 'yellow', attrs=('bold', )) + \
-            colored('    FCFS: ', 'yellow', attrs=('bold', )) + colored('First Come First Service\n', 'yellow') + \
-            colored('    SJF: ', 'yellow', attrs=('bold', )) + colored('Shortest Job First\n', 'yellow') + \
-            colored('    RR: ', 'yellow', attrs=('bold', )) + colored('Round Robin\n', 'yellow') + \
-            colored('    MLFQ: ', 'yellow', attrs=('bold', )) + colored('Multi-level Feedback Queue\n', 'yellow') + \
-            colored('    MLQ: ', 'yellow', attrs=('bold', )) + colored('Multi-level Queue (based on priorities)\n', 'yellow') + \
-            colored('  > ', 'yellow')
+    # message = colored('Which algorithm are you going to run?\n\n', 'yellow', attrs=('bold', )) + \
+    #         colored('    FCFS: ', 'yellow', attrs=('bold', )) + colored('First Come First Service\n', 'yellow') + \
+    #         colored('    SJF: ', 'yellow', attrs=('bold', )) + colored('Shortest Job First\n', 'yellow') + \
+    #         colored('    RR: ', 'yellow', attrs=('bold', )) + colored('Round Robin\n', 'yellow') + \
+    #         colored('    MLFQ: ', 'yellow', attrs=('bold', )) + colored('Multi-level Feedback Queue\n', 'yellow') + \
+    #         colored('    MLQ: ', 'yellow', attrs=('bold', )) + colored('Multi-level Queue (based on priorities)\n', 'yellow') + \
+    #         colored('  > ', 'yellow')
 
 
     # input the intended scheduler algorithm
-    algorithm = input(message)
+    # algorithm = input(message)
+    algorithm = "MLFQ"
 
 
     # input the number of tasks and also each resource
@@ -70,7 +71,8 @@ if __name__ == '__main__':
     elif algorithm.upper() == 'MLFQ':
         queues_num = int(input(colored('Please enter the number of the queues: ', 'yellow', attrs=('bold',))))
         time_quantums = list(map(int, input(colored('Respectively, enter time quantum associated with each queue: ', 'yellow', attrs=('bold',))).split(' ')))
-        mlf_thread = Thread(target=multilevel_feedback_queue, args=(tasks_count, queues_num, time_quantums))
+        time_slices = list(map(int, input(colored('Respectively, enter time slice(rr budget) associated with each queue: ', 'yellow', attrs=('bold',))).split(' ')))
+        mlf_thread = Thread(target=multilevel_feedback_queue, args=(tasks_count, queues_num, time_quantums, time_slices))
         mlf_thread.start()
         mlf_thread.join()
 
